@@ -1,0 +1,245 @@
+vipl-mini-app/
+│
+├─ public/
+│   ├─ index.html
+│   ├─ key.svg
+│
+├─ src/
+│   ├─ components/
+│   │   ├─ Header.jsx
+│   │   ├─ Farming.jsx
+│   │   ├─ Stake.jsx
+│   │   ├─ Wallet.jsx
+│   │   ├─ BuyVipl.jsx
+│   │   ├─ Pools.jsx
+│   │   └─ InvestmentProgress.jsx
+│   │
+│   ├─ api.js
+│   ├─ App.jsx
+│   └─ index.js
+│
+├─ package.json
+└─ README.md
+
+{
+  "name": "vipl-mini-app",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build"
+  }
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>Vipl Mini App</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+<body>
+  <div id="root"></div>
+</body>
+</html>
+
+import React from "react";
+import ReactDOM from "react-dom/client";
+import App from "./App";
+
+const root = ReactDOM.createRoot(document.getElementById("root"));
+root.render(<App />);
+
+const API_BASE = "https://your-backend.com/api";
+
+export const claimFarming = async (chain) => {
+  const res = await fetch(`${API_BASE}/farming/claim`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ chain })
+  });
+  return res.json();
+};
+
+export const stakeTokens = async (amount, chain) => {
+  const res = await fetch(`${API_BASE}/stake`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ amount, chain })
+  });
+  return res.json();
+};
+
+export const withdraw = async (amount, chain) => {
+  const res = await fetch(`${API_BASE}/withdraw`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ amount, chain })
+  });
+  return res.json();
+};
+
+export const getInvestments = async (chain) => {
+  const res = await fetch(`${API_BASE}/investments?chain=${chain}`);
+  return res.json();
+};
+
+import React, { useState } from "react";
+import Header from "./components/Header";
+import Farming from "./components/Farming";
+import Stake from "./components/Stake";
+import Wallet from "./components/Wallet";
+import BuyVipl from "./components/BuyVipl";
+import Pools from "./components/Pools";
+import InvestmentProgress from "./components/InvestmentProgress";
+
+function App() {
+  const [chain, setChain] = useState("TON");
+
+  return (
+    <div style={{ padding: 20 }}>
+      <Header chain={chain} setChain={setChain} />
+      <Wallet chain={chain} />
+      <Farming chain={chain} />
+      <Stake chain={chain} />
+      <BuyVipl chain={chain} />
+      <Pools chain={chain} />
+      <InvestmentProgress chain={chain} />
+    </div>
+  );
+}
+
+export default App;
+
+import React from "react";
+
+const Header = ({ chain, setChain }) => {
+  return (
+    <div>
+      <h2>Vipl Mini App</h2>
+      <select value={chain} onChange={(e) => setChain(e.target.value)}>
+        <option value="TON">TON</option>
+        <option value="AVAX">Avalanche</option>
+      </select>
+    </div>
+  );
+};
+
+export default Header;
+
+import React from "react";
+import { claimFarming } from "../api";
+
+const Farming = ({ chain }) => {
+  const handleClaim = async () => {
+    const res = await claimFarming(chain);
+    alert(res.message);
+  };
+
+  return (
+    <div>
+      <h3>Farming</h3>
+      <button onClick={handleClaim}>
+        Claim 0.5 Vipl ({chain})
+      </button>
+    </div>
+  );
+};
+
+export default Farming;
+
+import React, { useState } from "react";
+import { stakeTokens } from "../api";
+
+const Stake = ({ chain }) => {
+  const [amount, setAmount] = useState("");
+
+  const handleStake = async () => {
+    const res = await stakeTokens(amount, chain);
+    alert(res.message);
+  };
+
+  return (
+    <div>
+      <h3>Stake</h3>
+      <input
+        type="number"
+        placeholder="Amount"
+        value={amount}
+        onChange={(e) => setAmount(e.target.value)}
+      />
+      <button onClick={handleStake}>Stake</button>
+    </div>
+  );
+};
+
+export default Stake;
+
+import React from "react";
+
+const Wallet = ({ chain }) => {
+  return (
+    <div>
+      <h3>Wallet ({chain})</h3>
+      <p>Internal balance: 0 Vipl</p>
+    </div>
+  );
+};
+
+export default Wallet;
+
+import React from "react";
+
+const BuyVipl = ({ chain }) => {
+  return (
+    <div>
+      <h3>Buy Vipl ({chain})</h3>
+      <button>Buy on DEX</button>
+      <button>Claim +5% Bonus</button>
+    </div>
+  );
+};
+
+export default BuyVipl;
+
+import React from "react";
+
+const Pools = ({ chain }) => {
+  return (
+    <div>
+      <h3>Liquidity Pools ({chain})</h3>
+      <p>Vipl / USDT</p>
+      <p>Vipl / USDC</p>
+      <p>Vipl / BTC</p>
+      <p>Vipl / ETH</p>
+    </div>
+  );
+};
+
+export default Pools;
+
+import React from "react";
+
+const InvestmentProgress = ({ chain }) => {
+  return (
+    <div>
+      <h3>Investment Progress ({chain})</h3>
+      <p>Token purchase: —</p>
+      <p>LP purchase: —</p>
+      <img src="/key.svg" width="40" alt="key"/>
+    </div>
+  );
+};
+
+export default InvestmentProgress;
+
+1. npm install
+2. npm run build
+3. Upload /build to Telegram via @BotFather → startapp
+
+npm install
+npm run build
